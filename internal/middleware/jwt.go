@@ -3,8 +3,8 @@ package middleware
 import (
 	errs "container-manager/internal/errors"
 	"container-manager/internal/infra/config"
-	"container-manager/internal/utils"
-	"fmt"
+	"container-manager/internal/schema"
+	"context"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -54,10 +54,11 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		uId, _ := utils.StringToInt((claims.Subject))
+		uId := claims.Subject
 
-		c.Set("uId", uId)
+		ctx := context.WithValue(c.Request.Context(), schema.UserIDKey, uId)
+		c.Request = c.Request.WithContext(ctx)
+
 		c.Next()
-		fmt.Println("Exiting JWTAuthMiddleware")
 	}
 }

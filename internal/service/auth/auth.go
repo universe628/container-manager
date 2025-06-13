@@ -36,15 +36,15 @@ func (a *authService) Login(ctx context.Context, req *schema.User) (string, erro
 
 func (a *authService) NewUser(ctx context.Context, req *schema.User) error {
 	_, err := a.repo.GetUserByUserName(ctx, req.UserName)
-	if err != sql.ErrNoRows {
-		return errs.ErrUserNameTaken
-	} else if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return err
+	} else if err != sql.ErrNoRows {
+		return errs.ErrUserNameTaken
 	}
 
 	req.Password = auth.PasswordHashing(req.Password)
 
-	_, err = a.repo.CreateUser(context.Background(), req)
+	_, err = a.repo.CreateUser(ctx, req)
 	if err != nil {
 		return err
 	}

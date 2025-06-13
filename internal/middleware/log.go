@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"container-manager/internal/schema"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 func LoggingMiddleware(log Logger) gin.HandlerFunc {
@@ -12,9 +12,13 @@ func LoggingMiddleware(log Logger) gin.HandlerFunc {
 		start := time.Now()
 		c.Next()
 
-		userID, exists := c.Get("userID")
-		if !exists {
+		userID, ok := c.Request.Context().Value(schema.UserIDKey).(string)
+		if !ok {
 			userID = "anonymous"
+		}
+		requestID, ok := c.Request.Context().Value(schema.RequestIDKey).(string)
+		if !ok {
+			requestID = "unknown"
 		}
 
 		latency := time.Since(start)
@@ -24,7 +28,7 @@ func LoggingMiddleware(log Logger) gin.HandlerFunc {
 				"method":     c.Request.Method,
 				"path":       c.Request.URL.Path,
 				"ip":         c.ClientIP(),
-				"request_id": uuid.New().String(),
+				"request_id": requestID,
 				"user_id":    userID,
 				"lantency":   latency,
 				"errors":     c.Errors[0].Err.Error(),
@@ -35,7 +39,7 @@ func LoggingMiddleware(log Logger) gin.HandlerFunc {
 				"method":     c.Request.Method,
 				"path":       c.Request.URL.Path,
 				"ip":         c.ClientIP(),
-				"request_id": uuid.New().String(),
+				"request_id": requestID,
 				"user_id":    userID,
 				"lantency":   latency,
 				"errors":     "none",

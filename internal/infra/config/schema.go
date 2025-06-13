@@ -13,9 +13,15 @@ type JwtConfig struct {
 	ExpiresDurationHour int
 }
 
+type FileSetting struct {
+	MaximunFileSizeMB int
+}
+
 type Config struct {
 	Database string
 	Pg       PostgresDataBase
 	Jwt      JwtConfig
 	Salt     string
+	FileSetting
+	TimeoutSecond int
 }

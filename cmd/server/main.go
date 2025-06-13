@@ -5,10 +5,14 @@ import (
 	"container-manager/internal/infra/auth"
 	"container-manager/internal/infra/config"
 	"container-manager/internal/infra/database"
+	"container-manager/internal/infra/localstorage"
 	"container-manager/internal/infra/logger"
+	"container-manager/internal/repository/file-repo"
 	postgresRepo "container-manager/internal/repository/postgres"
 	"container-manager/internal/router"
 	authservice "container-manager/internal/service/auth"
+	fileservice "container-manager/internal/service/file"
+	validationservice "container-manager/internal/service/validation"
 )
 
 func main() {
@@ -26,10 +30,15 @@ func main() {
 	repo := postgresRepo.NewPostgresUserRepository(dbConnection)
 	authService := authservice.NewAuthService(repo, auth.NewJwt())
 	authHandler := handler.NewAuthHandler(authService)
-
 	testHandler := handler.NewTestHandler()
 
-	router := router.CreateRootRouter(logger, authHandler, testHandler)
+	fileManager := localstorage.NewfileManager()
+	fileRepo := filerepo.NewLocalStorageRepo(fileManager)
+	fileService := fileservice.NewFileService(fileRepo)
+	validationService := validationservice.NewValidationService()
+	fileHandler := handler.NewFileHandler(fileService, validationService)
+
+	router := router.CreateRootRouter(logger, authHandler, testHandler, fileHandler)
 
 	router.Run(":8080")
 

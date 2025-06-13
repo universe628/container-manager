@@ -26,7 +26,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.authService.Login(c, &schema.User{
+	token, err := h.authService.Login(c.Request.Context(), &schema.User{
 		UserName: body.UserName,
 		Password: body.Password,
 	})
@@ -49,10 +49,11 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	err := h.authService.NewUser(c, &schema.User{
+	err := h.authService.NewUser(c.Request.Context(), &schema.User{
 		UserName: body.UserName,
 		Password: body.Password,
 	})
+
 	if err != nil {
 		c.Error(err)
 		return

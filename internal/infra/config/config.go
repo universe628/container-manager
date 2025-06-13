@@ -23,7 +23,19 @@ func getEnvConfig() *Config {
 	jwtExpiresDurationHourStr := os.Getenv("JWT_EXPIRES_DURATION_HOUR")
 	jwtExpiresDurationHour, err := utils.StringToInt(jwtExpiresDurationHourStr)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatalf("Error loading .env file: %s", "JWT_EXPIRES_DURATION_HOUR")
+	}
+
+	maximumFileSizeMbStr := os.Getenv("MAXIMUN_FILE_SIZE_MB")
+	maximumFileSizeMb, err := utils.StringToInt(maximumFileSizeMbStr)
+	if err != nil {
+		log.Fatalf("Error loading .env file: %s", "MAXIMUN_FILE_SIZE_MB")
+	}
+
+	timeoutSecondStr := os.Getenv("TIMEOUT_SECOND")
+	timeoutSecond, err := utils.StringToInt(timeoutSecondStr)
+	if err != nil {
+		log.Fatalf("Error loading .env file: %s", "TIMEOUT_SECOND")
 	}
 
 	return &Config{
@@ -40,6 +52,10 @@ func getEnvConfig() *Config {
 		},
 		Database: os.Getenv("DATABASE"),
 		Salt:     os.Getenv("SALT"),
+		FileSetting: FileSetting{
+			MaximunFileSizeMB: maximumFileSizeMb,
+		},
+		TimeoutSecond: timeoutSecond,
 	}
 }
 
